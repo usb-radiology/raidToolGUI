@@ -1,0 +1,50 @@
+---
+Global:
+    BackgroundCheckInterval: 60 # interval in seconds at which the Raid is checked for modification. Set to <= 0 to disable
+    GlobalIgnoreRegex:
+        - Adj.*
+        - .*[Ll]ocalizer.*
+        - .*[Ss]cout.*
+
+# This depends on the scanner version. Usually no need to change.
+Raid:
+    IP: 192.168.2.2
+    port: 8010
+    TmpDir: C:\Temp\Agora
+    LogDir: C:\MedCom\Log
+
+Targets:
+    Agora1:
+        Type: Agora
+        IP: 10.5.66.120
+        ApiID: b23b1850-ee49-46fd-b8eb-bd8c7091bce0
+        ProjectName: Test
+        FolderName: TestFolder
+    Agora2:
+        Inherit: Agora1
+        FolderName: TestFolder2
+    Agora3:
+        Inherit: Agora2
+        ProjectName: null # this refers to "My Agora"
+    Samba1:
+        Type: Drive
+        DrivePath: 'X:' # need to use quotes because of the colon sign
+        FolderPath: Data
+        ConnectCommand: 'net use X: \\myserver\myshare' # set to null to avoid automatic connect
+        DisconnectCommand: 'net use X: /delete' # set to null to avoid disconnect
+    Removable1:
+        Type: Drive
+        DriveRegex: RAW_EXPORT.*
+        FolderPath: RawData
+        FilePattern: raw_%PatName%_%ProtName%_%CreateTime%.dat # Available tags: PatName, ProtName, CreateTime, FileID, MeasID
+
+# Rules: the rule that matches *last* will be taken. So general rules are at the beginning, more specific rules are at the end.
+# The regular expressions need to be *full matches*, i.e. they will be enclosed in ^...$ while parsing
+Rules:
+    - ProtRegex: fs_.*
+      PatRegex: .*
+      Target: Agora1
+    - PatRegex: MyPat.*
+      Target: Agora2
+    - PatRegex: .*Test.*
+      Target: Agora1
