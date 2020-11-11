@@ -72,7 +72,7 @@ def translatePattern(pattern, dataStructure):
 
 class DriveUploader(AbstractUploader):
 
-    def __init__(self, drivePath = None, folderPath = None, connectCommand = None, disconnectCommand = None, driveRegex = None, filePattern = None):
+    def __init__(self, drivePath = None, folderPath = None, connectCommand = None, disconnectCommand = None, driveRegex = None, filePattern = None, skipTemp = False):
         assert drivePath or driveRegex # there must either be a fixed path or a drive name
         self.drivePath = drivePath
         if folderPath is None:
@@ -83,11 +83,15 @@ class DriveUploader(AbstractUploader):
         self.disconnectCommand = disconnectCommand
         self.driveRegex = driveRegex
         self.filePattern = filePattern
+        self.skipTemp = skipTemp
 
-    def uploadData(self, dataPath, deleteOriginal = False, dataStructure = None):
+    def skipTemp(self):
+        return self.skipTemp
+
+    def uploadData(self, raidObj, fileID, deleteOriginal = False, dataStructure = None):
         if MOCK:
             time.sleep(1)
-            print("Uploading", dataPath)
+            print("Uploading", fileID)
             return True
 
         if self.drivePath: # This is either a fixed drive or a samba share
@@ -107,27 +111,40 @@ class DriveUploader(AbstractUploader):
                 return False
 
         remotePath = Path(drivePath, self.folderPath)
-        data = Path(dataPath)
-
-        # remotepath is here a directory. Create it if needed
-        try:
-            remotePath.mkdir(parents = True, exist_ok = True)
-        except:
-            return False
 
         if dataStructure and self.filePattern:
-            remotePath /= translatePattern(self.filePattern, dataStructure)
+            remoteFileName = translatePattern(self.filePattern, dataStructure)
+        else:
+            remoteFileName = f'{fileID}.dat'
 
-        # RemotePath cen either be a directory or a filename
-        print(f'Copying {str(data)} to {str(remotePath)}')
+        remotePath /= remoteFileName
 
-        try:
-            shutil.copy(data, remotePath)
-        except:
-            return False
+        # make sure that file is retrieved, unless we are skipping the temporary file creation
+        if not self.skipTemp and not raidObj.fileRetrieved(fileID):
+            raidObj.retrieve(fileID)
 
-        # delete original file upon completion
-        if deleteOriginal: data.unlink()
+        if not raidObj.fileRetrieved(fileID):
+            raidObj.retrieve(fileID, str(remotePath)) # retrieve file now, directly to target
+        else:
+            dataPath = raidObj.getLocalFile(fileID)
+            data = Path(dataPath)
+
+            # remotepath is a file. Create its parent if needed
+            try:
+                remotePath.parent.mkdir(parents = True, exist_ok = True)
+            except:
+                return False
+
+
+            print(f'Copying {str(data)} to {str(remotePath)}')
+
+            try:
+                shutil.copy(data, remotePath)
+            except:
+                return False
+
+            # delete original file upon completion
+            if deleteOriginal: data.unlink()
 
         # copy dependencies
         try:

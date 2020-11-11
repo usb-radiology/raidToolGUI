@@ -46,10 +46,10 @@ class AgoraUploader(AbstractUploader):
         except:
             os.environ['NO_PROXY'] = agoraIP
 
-    def uploadData(self, dataPath, deleteOriginal = False, dataStructure = None):
+    def uploadData(self, raidObj, fileID, deleteOriginal = False, dataStructure = None):
         if MOCK:
             time.sleep(1)
-            print("Uploading", dataPath)
+            print("Uploading", fileID)
             return True
         if not self.agora: self.agora = Agora.create(f'https://{self.agoraIP}/', self.apiID)
 
@@ -69,6 +69,8 @@ class AgoraUploader(AbstractUploader):
         print(rootFolder.name)
         targetFolder = rootFolder.get_or_create(self.folderName)
         print(targetFolder.name)
+        if not raidObj.fileRetrieved(fileID): raidObj.retrieve(fileID) # retrieve file now, if not done already
+        dataPath = raidObj.getLocalFile(fileID)
         data = Path(dataPath)
         fileList = [data]
         try:

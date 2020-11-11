@@ -55,7 +55,8 @@ def initFromConfig():
                                                    connectCommand = target.get('ConnectCommand'),
                                                    disconnectCommand = target.get('DisconnectCommand'),
                                                    driveRegex = target.get('DriveRegex'),
-                                                   filePattern = target.get('FilePattern'))
+                                                   filePattern = target.get('FilePattern'),
+                                                   skipTemp = target.get('SkipTemp') or False)
         else:
             print("Warning! Unknown target type!")
 

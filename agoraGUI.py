@@ -127,7 +127,7 @@ class SmallWindow(QtWidgets.QDialog, miniAgoraDialog.Ui_MiniDialog):
         self.mainWindow.setWindowState(QtCore.Qt.WindowActive)
         self.hide()
         
-# Decorator to enable controls before a function and reanable them afterwards
+# Decorator to disable controls before a function and reanable them afterwards
 def enableDisableDecorator(func):
     functools.wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -182,6 +182,8 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
         self.ignoredShelf = shelve.open(IGNORED_SHELF_FILENAME)
         purgeOldShelf(self.ignoredShelf)
         self.dataList = []
+        
+        self.skipTempDict = {}
     
     def reloadConfig(self):
         self.raid, self.targets, self.rules, self.globalConfig = initFromConfig()
@@ -321,8 +323,9 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
                 #self.setRowColor(nextRow, RETRIEVEDCOLOR)
                 self.UpdateRowColorSignal.emit(nextRow, RETRIEVEDCOLOR)
                 
-            # store datastructure/t1arget pairs
+            # store datastructure/target pairs
             self.dataList.append( (d, target) )
+            self.skipTempDict[d['FileID']] = target.skipTemp()
         if not self.busy: self.minime.setIcon(None) # set default busy/nonbusy icon if the app is not busy (in which case we want the busy icon)
     
     @enableDisableDecorator        
@@ -335,8 +338,12 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
             if self.isRowChecked(row):            
                 self.statusLabel.setText(f'Status: Retrieving {fileID} - Scanning might be affected!')
                 QtWidgets.QApplication.processEvents()
-                # do the retrieval
-                if self.raid.retrieve(fileID):
+                # do the retrieval if not skipTemp
+                if self.skipTempDict[fileID]:
+                    retrieveSuccess = True
+                else:
+                    retrieveSuccess = self.raid.retrieve(fileID)
+                if retrieveSuccess:
                     #self.setRowColor(row, RETRIEVEDCOLOR)
                     self.UpdateRowColorSignal.emit(row, RETRIEVEDCOLOR) # thread safety
                     self.retrievedShelf[fileID] = self.dataList[row][0]['CreateTime']
@@ -371,7 +378,7 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
             if self.isRowChecked(row):
                 self.statusLabel.setText(f'Status: Transferring {fileID}')
                 # do the transfer
-                if uploader.uploadData(self.raid.getLocalFile(fileID), deleteOriginal = True, dataStructure = self.dataList[row][0]):
+                if uploader.uploadData(self.raid, fileID, deleteOriginal = True, dataStructure = self.dataList[row][0]):
                     self.UpdateRowColorSignal.emit(row, TRANSFERREDCOLOR) # thread safety
                     self.transferredShelf[fileID] = self.dataList[row][0]['CreateTime']
                 else:

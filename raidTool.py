@@ -151,14 +151,17 @@ class RaidTool:
 
         return raidList
 
-    def retrieve(self, fileID) -> bool:
-        cmd = self.raidCommand(f'-m {fileID} -o "{self.getLocalFile(fileID)}" -D -T {TRANSFER_COMMAND_TIMEOUT}')
+    def retrieve(self, fileID, targetPathString = None) -> bool:
+        if targetPathString:
+            targetPath = pathlib.Path(targetPathString)
+        else:
+            targetPath = pathlib.Path(self.getLocalFile(fileID))
+
+        cmd = self.raidCommand(f'-m {fileID} -o "{str(targetPath)}" -D -T {TRANSFER_COMMAND_TIMEOUT}')
         print(cmd)
         if MOCK:
             time.sleep(1)
             return True
-
-        targetPath = pathlib.Path(self.getLocalFile(fileID))
 
         targetPath.parent.mkdir(parents = True, exist_ok = True)
 
@@ -166,6 +169,9 @@ class RaidTool:
         if procOutput.returncode != 0: return False
         # finally, check if file was correctly created
         return targetPath.is_file()
+
+    def fileRetrieved(self, fileID):
+        return os.path.isfile(self.getLocalFile(fileID))
 
     # returns the location/name of the local retrieved file, given the ID
     def getLocalFile(self, fileID):

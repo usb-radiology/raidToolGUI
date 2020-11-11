@@ -28,10 +28,11 @@ Targets:
         ProjectName: null # this refers to "My Agora"
     Samba1:
         Type: Drive
-        DrivePath: 'X:' # need to use quotes because of the colon sign
+        DrivePath: 'X:' # need to use quotes because of the colon sign - implementation dependent
         FolderPath: Data
         ConnectCommand: 'net use X: \\myserver\myshare' # set to null to avoid automatic connect
         DisconnectCommand: 'net use X: /delete' # set to null to avoid disconnect
+        SkipTemp: Yes # skip saving file to temp directory and save directly to target
     Removable1:
         Type: Drive
         DriveRegex: RAW_EXPORT.*
