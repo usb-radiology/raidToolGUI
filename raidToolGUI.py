@@ -19,7 +19,7 @@ import os,os.path
 import functools
 
 import miniAgoraDialog, agoraDialog
-from loadConfig import  initFromConfig
+from loadConfig import initFromConfig
 
 from raidTool import RaidTool, RaidError
 
@@ -188,9 +188,9 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
     def reloadConfig(self):
         self.raid, self.targets, self.rules, self.globalConfig = initFromConfig()
         
-    # finds the target name according to the rules
-    def findTargetName(self, protName, patName):
-        target = None
+    # finds the target names according to the rules
+    def findTargetNames(self, protName, patName):
+        target = []
         for ignoreRegex in self.globalConfig['GlobalIgnoreRegex']:
             protMatch = re.match('^' + ignoreRegex + '$', protName)
             if protMatch: return None
@@ -206,7 +206,7 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
                 patMatch = re.match('^' + rule['PatRegex'] + '$', patName)
             else: # same as above
                 patMatch = True
-            if protMatch and patMatch: target = rule['Target']
+            if protMatch and patMatch: target.append(rule['Target'])
         return target
     
     def isMinified(self):
@@ -304,7 +304,7 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
         for d in data:
             # filter the data
             nextRow = self.dataTable.rowCount()
-            target = self.findTargetName(d['Prot'], d['Pat'])
+            target = self.findTargetNames(d['Prot'], d['Pat'])
             if not target: continue
             self.dataTable.insertRow(nextRow)
             checkbox = QtWidgets.QCheckBox('')
@@ -313,7 +313,7 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
             self.dataTable.setItem(nextRow, 1, QtWidgets.QTableWidgetItem(str(d['MeasID'])))
             self.dataTable.setItem(nextRow, 2, QtWidgets.QTableWidgetItem(d['Prot']))
             self.dataTable.setItem(nextRow, 3, QtWidgets.QTableWidgetItem(d['Pat']))
-            self.dataTable.setItem(nextRow, 4, QtWidgets.QTableWidgetItem(target))
+            self.dataTable.setItem(nextRow, 4, QtWidgets.QTableWidgetItem(", ".join(target)))
             if d['FileID'] in self.ignoredShelf:
                 self.UpdateRowColorSignal.emit(nextRow, IGNORECOLOR)
             elif d['FileID'] in self.transferredShelf:
@@ -325,7 +325,7 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
                 
             # store datastructure/target pairs
             self.dataList.append( (d, target) )
-            self.skipTempDict[d['FileID']] = target.skipTemp()
+            self.skipTempDict[d['FileID']] = all([t.skipTemp() for t in target]) # skip temp directory if all the targets wish to skip temp
         if not self.busy: self.minime.setIcon(None) # set default busy/nonbusy icon if the app is not busy (in which case we want the busy icon)
     
     @enableDisableDecorator        
@@ -371,19 +371,29 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
         self.busy = True
         for row in range(self.dataTable.rowCount()):
             fileID = self.dataList[row][0]['FileID']
-            targetName = self.dataList[row][1]
-            uploader = self.targets[targetName]
+            allTargetNames = self.dataList[row][1]
             if fileID in self.transferredShelf or fileID in self.ignoredShelf: continue
             if fileID not in self.retrievedShelf: continue
-            if self.isRowChecked(row):
-                self.statusLabel.setText(f'Status: Transferring {fileID}')
+            if not self.isRowChecked(row): continue
+
+            # row is checked, and file is to be transferred
+            self.statusLabel.setText(f'Status: Transferring {fileID}')
+
+            success = True
+
+            for targetIndex, targetName in enumerate(allTargetNames):
+                uploader = self.targets[targetName]
                 # do the transfer
-                if uploader.uploadData(self.raid, fileID, deleteOriginal = True, dataStructure = self.dataList[row][0]):
-                    self.UpdateRowColorSignal.emit(row, TRANSFERREDCOLOR) # thread safety
-                    self.transferredShelf[fileID] = self.dataList[row][0]['CreateTime']
-                else:
-                    self.UpdateRowColorSignal.emit(row, ERRORCOLOR) # thread safety
-                self.statusLabel.setText(f'Status: Idle')
+                deleteOriginal = (targetIndex == len(allTargetNames)-1) # delete cached file if the current target is the last one in the list
+                success &= uploader.uploadData(self.raid, fileID, deleteOriginal = deleteOriginal, dataStructure = self.dataList[row][0])
+
+            if success:
+                self.UpdateRowColorSignal.emit(row, TRANSFERREDCOLOR) # thread safety
+                self.transferredShelf[fileID] = self.dataList[row][0]['CreateTime']
+            else:
+                self.UpdateRowColorSignal.emit(row, ERRORCOLOR) # thread safety
+
+            self.statusLabel.setText(f'Status: Idle')
         
         # don't leave any target open
         for target in self.targets.values():

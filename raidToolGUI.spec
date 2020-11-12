@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['agoraGUI.py'],
+a = Analysis(['raidToolGUI.py'],
              pathex=['E:\\WPy64-3830\\agora'],
              binaries=[],
              datas=[('icons\\*.png', 'icons'), ('config.yml', '.')],
