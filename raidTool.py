@@ -111,7 +111,7 @@ class RaidTool:
         # create globs for extensions
         newFileDict = {}
         for glb in LOG_PATTERNS:
-            for f in glob(os.path.join( os.path.abspath(self.logDir), glb))
+            for f in glob(os.path.join( os.path.abspath(self.logDir), glb)):
                 if f in self.logFileDict: # avoid parsing files without need, but also purge nonexisting files
                     newFileDict[f] = self.logFileDict[f]
                     continue
@@ -146,7 +146,7 @@ class RaidTool:
         for raidData in raidList:
             for logPath, logTimes in logList.items():
                 if logTimes[0] < raidData['CloseTime'] and logTimes[1] > raidData['CreateTime']: # start of log must be before end of acquisition and vice versa
-                    print(dataItem['FileID'], '->', logPath)
+                    print(raidData['FileID'], '->', logPath)
                     raidData['Dependencies'].append(logPath)
 
         return raidList
