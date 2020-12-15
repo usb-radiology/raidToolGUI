@@ -14,7 +14,7 @@ import os.path
 import pathlib
 from glob import glob
 
-LOG_PATTERNS = [ '*.ecg', '*.puls', '*.resp' ]
+LOG_PATTERNS = [ '*.ecg', '*.puls', '*.resp', '*.ext', '*.ext2' ]
 
 
 MOCK = False
@@ -52,7 +52,8 @@ def parseRaidOutput(raidOutput):
             l = line.decode('utf-8')
         else:
             l = line
-        l = line.decode('utf-8')
+        #l = line.decode('utf-8')
+        #print(line)
 
         if 'FileID' in l:
             headerFound = True
@@ -97,23 +98,28 @@ def findLogFileTimes(logFileName):
 
 class RaidTool:
 
+    logFileDict = {} # make this static so it doesn't get overwritten by new initialization
+
     def __init__(self, IP = '192.168.2.2', port = '8010', TmpDir = 'C:\\Temp\\Agora', LogDir = 'C:\\MedCom\\Log'):
         self.ip = IP
         self.port = port
         self.tmpDir = TmpDir
         self.logDir = LogDir
-        self.logFileDict = {}
 
     def raidCommand(self, cmd):
-        return f'RaidTool -a {self.ip} -p {self.port} -k ' + cmd
+        c = f'RaidTool -a {self.ip} -p {self.port} -k ' + cmd
+        print(c)
+        return c
 
     def loadLogList(self):
         # create globs for extensions
         newFileDict = {}
+        print(list(self.logFileDict.keys()))
         for glb in LOG_PATTERNS:
-            for f in glob(os.path.join( os.path.abspath(self.logDir), glb))
-                if f in self.logFileDict: # avoid parsing files without need, but also purge nonexisting files
-                    newFileDict[f] = self.logFileDict[f]
+            for f in glob(os.path.join( os.path.abspath(self.logDir), glb)):
+                if f in RaidTool.logFileDict: # avoid parsing files without need, but also purge nonexisting files
+                    newFileDict[f] = RaidTool.logFileDict[f]
+                    print("File exists in dict. Skipping")
                     continue
                 createDateTime = datetime.fromtimestamp( os.path.getctime(f) )
                 createDay = datetime(createDateTime.year, createDateTime.month, createDateTime.day)
@@ -123,7 +129,7 @@ class RaidTool:
                 endDateTime = createDay + timedelta(milliseconds = endMs)
                 newFileDict[f] = (startDateTime, endDateTime)
                 print("File", f, "Start", startDateTime, "End", endDateTime)
-        self.logFileDict = newFileDict
+        RaidTool.logFileDict = newFileDict
         return newFileDict
 
 
@@ -146,7 +152,7 @@ class RaidTool:
         for raidData in raidList:
             for logPath, logTimes in logList.items():
                 if logTimes[0] < raidData['CloseTime'] and logTimes[1] > raidData['CreateTime']: # start of log must be before end of acquisition and vice versa
-                    print(dataItem['FileID'], '->', logPath)
+                    print(raidData['FileID'], '->', logPath)
                     raidData['Dependencies'].append(logPath)
 
         return raidList

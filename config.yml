@@ -11,7 +11,7 @@ Raid:
     IP: 192.168.2.2
     port: 8010
     TmpDir: C:\Temp\Agora
-    LogDir: C:\MedCom\Log
+    LogDir: C:\MedCom\log
 
 Targets:
     Agora1:
@@ -35,17 +35,16 @@ Targets:
         SkipTemp: Yes # skip saving file to temp directory and save directly to target
     Removable1:
         Type: Drive
-        DriveRegex: RAW_EXPORT.*
+        DriveRegex: FS_Data.*
         FolderPath: RawData
         FilePattern: raw_%PatName%_%ProtName%_%CreateTime%.dat # Available tags: PatName, ProtName, CreateTime, FileID, MeasID
+        SkipTemp: Yes # skip saving file to temp directory and save directly to target
 
 # Rules: the rule that matches *last* will be taken. So general rules are at the beginning, more specific rules are at the end.
 # The regular expressions need to be *full matches*, i.e. they will be enclosed in ^...$ while parsing
 Rules:
     - ProtRegex: fs_.*
       PatRegex: .*
-      Target: Agora1
+      Target: Removable1
     - PatRegex: MyPat.*
       Target: Agora2
-    - PatRegex: .*Test.*
-      Target: Agora1

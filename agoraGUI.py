@@ -325,7 +325,7 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
                 
             # store datastructure/target pairs
             self.dataList.append( (d, target) )
-            self.skipTempDict[d['FileID']] = target.skipTemp()
+            self.skipTempDict[d['FileID']] = self.targets[target].skipTemp
         if not self.busy: self.minime.setIcon(None) # set default busy/nonbusy icon if the app is not busy (in which case we want the busy icon)
     
     @enableDisableDecorator        

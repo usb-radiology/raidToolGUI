@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['agoraGUI.py'],
-             pathex=['E:\\WPy64-3830\\agora'],
+             pathex=['E:\\WPy64-3830\\raidToolGUI'],
              binaries=[],
              datas=[('icons\\*.png', 'icons'), ('config.yml', '.')],
              hiddenimports=['win32api'],
