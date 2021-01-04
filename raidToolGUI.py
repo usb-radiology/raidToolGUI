@@ -314,18 +314,21 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
             self.dataTable.setItem(nextRow, 2, QtWidgets.QTableWidgetItem(d['Prot']))
             self.dataTable.setItem(nextRow, 3, QtWidgets.QTableWidgetItem(d['Pat']))
             self.dataTable.setItem(nextRow, 4, QtWidgets.QTableWidgetItem(", ".join(target)))
+            # store datastructure/target pairs
+            self.dataList.append( (d, target) )
+            skipTemp = all([self.targets[t].skipTemp() for t in target]) # skip temp directory if all the targets wish to skip temp
+            self.skipTempDict[d['FileID']] = skipTemp
+
             if d['FileID'] in self.ignoredShelf:
                 self.UpdateRowColorSignal.emit(nextRow, IGNORECOLOR)
             elif d['FileID'] in self.transferredShelf:
                 #self.setRowColor(nextRow, TRANSFERREDCOLOR)
                 self.UpdateRowColorSignal.emit(nextRow, TRANSFERREDCOLOR)
-            elif d['FileID'] in self.retrievedShelf:
+            elif d['FileID'] in self.retrievedShelf or skipTemp: # if skipTemp, make the file appear as retrieved. Not added to the shelf because it might change with a change in config
                 #self.setRowColor(nextRow, RETRIEVEDCOLOR)
                 self.UpdateRowColorSignal.emit(nextRow, RETRIEVEDCOLOR)
                 
-            # store datastructure/target pairs
-            self.dataList.append( (d, target) )
-            self.skipTempDict[d['FileID']] = all([self.targets[t].skipTemp() for t in target]) # skip temp directory if all the targets wish to skip temp
+
         if not self.busy: self.minime.setIcon(None) # set default busy/nonbusy icon if the app is not busy (in which case we want the busy icon)
     
     @enableDisableDecorator        
