@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'agoraDialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -95,7 +95,7 @@ class Ui_AgoraDialog(object):
 
     def retranslateUi(self, AgoraDialog):
         _translate = QtCore.QCoreApplication.translate
-        AgoraDialog.setWindowTitle(_translate("AgoraDialog", "Agora Siemens UI"))
+        AgoraDialog.setWindowTitle(_translate("AgoraDialog", "RAID Siemens UI"))
         item = self.dataTable.horizontalHeaderItem(0)
         item.setText(_translate("AgoraDialog", "Transfer"))
         item = self.dataTable.horizontalHeaderItem(1)
@@ -113,7 +113,7 @@ class Ui_AgoraDialog(object):
         self.refreshButton.setText(_translate("AgoraDialog", "Refresh"))
         self.retrieveButton.setToolTip(_translate("AgoraDialog", "<html><head/><body><p>Copy the data to the local drive</p></body></html>"))
         self.retrieveButton.setText(_translate("AgoraDialog", "Retrieve"))
-        self.transferButton.setToolTip(_translate("AgoraDialog", "<html><head/><body><p>Transfer the data to Agora</p></body></html>"))
+        self.transferButton.setToolTip(_translate("AgoraDialog", "<html><head/><body><p>Transfer the data to target</p></body></html>"))
         self.transferButton.setText(_translate("AgoraDialog", "Transfer"))
         self.ignoreButton.setText(_translate("AgoraDialog", "Ignore"))
         self.statusLabel.setText(_translate("AgoraDialog", "Status: Idle"))

@@ -10,7 +10,7 @@ import subprocess
 import re
 from datetime import datetime, timedelta
 import time
-import os.path
+import os
 import pathlib
 from glob import glob
 
@@ -31,6 +31,7 @@ print("RaidTool - Mock?", MOCK)
 
 LIST_COMMAND_TIMEOUT = 10
 TRANSFER_COMMAND_TIMEOUT = 300
+DELETE_OLD_LOGS = True
 
 dateTimePattern = r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}'
 parserRE = re.compile(r'\s*(?P<FileID>\d+)\s+(?P<MeasID>\d+)\s+(?P<Prot>.+?)(?P<Pat>.{32})\s+cld\s+(?P<Size>\d+)\s+(?P<SizeDisk>\d+)\s+(?P<CreateTime>' + dateTimePattern + ')\s+(?P<CloseTime>' + dateTimePattern + ').*')
@@ -123,6 +124,12 @@ class RaidTool:
                     continue
                 createDateTime = datetime.fromtimestamp( os.path.getctime(f) )
                 createDay = datetime(createDateTime.year, createDateTime.month, createDateTime.day)
+                age = datetime.now() - createDateTime
+                if age > timedelta(days=365):
+                    #print("Old file!", f)
+                    if DELETE_OLD_LOGS:
+                        os.remove(f)
+                        continue
                 startMs, endMs = findLogFileTimes(f)
                 if startMs is None or endMs is None: continue # invalid file
                 startDateTime = createDay + timedelta(milliseconds = startMs)

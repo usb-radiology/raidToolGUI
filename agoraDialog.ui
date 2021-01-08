@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Agora Siemens UI</string>
+   <string>RAID Siemens UI</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -145,7 +145,7 @@
        <item>
         <widget class="QPushButton" name="transferButton">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transfer the data to Agora&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transfer the data to target&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Transfer</string>

@@ -43,8 +43,8 @@ Targets:
 # Rules: the rule that matches *last* will be taken. So general rules are at the beginning, more specific rules are at the end.
 # The regular expressions need to be *full matches*, i.e. they will be enclosed in ^...$ while parsing
 Rules:
-    - ProtRegex: fs_.*
-      PatRegex: .*
+    - ProtRegex: fs.*
+      PatRegex: XXXX
       Target: Removable1
     - PatRegex: MyPat.*
       Target: Agora2

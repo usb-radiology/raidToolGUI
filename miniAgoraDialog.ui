@@ -20,7 +20,7 @@
    <string>MiniDialog</string>
   </property>
   <property name="toolTip">
-   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Click&lt;/span&gt;: Open Agora Control&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Right-Click&lt;/span&gt;: Move widget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Click&lt;/span&gt;: Open RAID Control&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Right-Click&lt;/span&gt;: Move widget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-image: url(&quot;icons/agoraIcon.png&quot;);

@@ -316,7 +316,7 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
             self.dataTable.setItem(nextRow, 4, QtWidgets.QTableWidgetItem(", ".join(target)))
             # store datastructure/target pairs
             self.dataList.append( (d, target) )
-            skipTemp = all([self.targets[t].skipTemp() for t in target]) # skip temp directory if all the targets wish to skip temp
+            skipTemp = all([self.targets[t].skipTemp for t in target]) # skip temp directory if all the targets wish to skip temp
             self.skipTempDict[d['FileID']] = skipTemp
 
             if d['FileID'] in self.ignoredShelf:
@@ -376,7 +376,7 @@ class WindowClass(QtWidgets.QDialog, agoraDialog.Ui_AgoraDialog):
             fileID = self.dataList[row][0]['FileID']
             allTargetNames = self.dataList[row][1]
             if fileID in self.transferredShelf or fileID in self.ignoredShelf: continue
-            if fileID not in self.retrievedShelf: continue
+            if fileID not in self.retrievedShelf and not self.skipTempDict[fileID]: continue
             if not self.isRowChecked(row): continue
 
             # row is checked, and file is to be transferred
