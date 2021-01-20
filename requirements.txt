@@ -1,0 +1,4 @@
+PyYAML~=5.3.1
+PyQt5~=5.15.2
+gtagora-connector
+pywin32
