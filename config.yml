@@ -17,7 +17,7 @@ Targets:
     Agora1:
         Type: Agora
         IP: 10.5.66.120
-        ApiID: b23b1850-ee49-46fd-b8eb-bd8c7091bce0
+        ApiID: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXX
         ProjectName: Test
         FolderName: TestFolder
     Agora2:
