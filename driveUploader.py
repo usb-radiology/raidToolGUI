@@ -58,11 +58,12 @@ def runCommand(cmd):
 
 def translatePattern(pattern, dataStructure):
     replaceDict = {
-            '%FileID%': dataStructure['FileID'],
-            '%MeasID%': dataStructure['MeasID'],
+            '%FileID%': dataStructure['FileID'].rjust(6, '0'),
+            '%MeasID%': dataStructure['MeasID'].rjust(6, '0'),
             '%PatName%': dataStructure['Pat'],
             '%ProtName%': dataStructure['Prot'],
-            '%CreateTime%': dataStructure['CreateTime'].strftime('%Y%m%d%H%M%S')
+            '%CreateTime%': dataStructure['CreateTime'].strftime('%Y%m%d%H%M%S'),
+            '%BirthDate%': dataStructure['BirthDate']
         }
     for key, rep in replaceDict.items():
         pattern = pattern.replace(key, rep)

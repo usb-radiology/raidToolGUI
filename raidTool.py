@@ -35,6 +35,7 @@ DELETE_OLD_LOGS = True
 
 dateTimePattern = r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}'
 parserRE = re.compile(r'\s*(?P<FileID>\d+)\s+(?P<MeasID>\d+)\s+(?P<Prot>.+?)(?P<Pat>.{32})\s+cld\s+(?P<Size>\d+)\s+(?P<SizeDisk>\d+)\s+(?P<CreateTime>' + dateTimePattern + ')\s+(?P<CloseTime>' + dateTimePattern + ').*')
+nameDateRE = re.compile(r'(.*),(.*)')
 
 def runCommand(cmd, timeout):
     out = subprocess.run(cmd, creationflags=subprocess.CREATE_NO_WINDOW, capture_output=True)
@@ -66,7 +67,10 @@ def parseRaidOutput(raidOutput):
         # keep these values as strings as they are more general
         #dataItem['FileID'] = int(dataItem['FileID'])
         #dataItem['MeasID'] = int(dataItem['MeasID'])
-        dataItem['Pat'] = dataItem['Pat'].strip()
+        patNameDate = dataItem['Pat'].strip()
+        nameDateMatch = nameDateRE.match(patNameDate)
+        dataItem['Pat'] = nameDateMatch.group(1)
+        dataItem['BirthDate'] = nameDateMatch.group(2)
         dataItem['CreateTime'] = parseDateTime(dataItem['CreateTime'])
         dataItem['CloseTime'] = parseDateTime(dataItem['CloseTime'])
         dataItem['Dependencies'] = []
