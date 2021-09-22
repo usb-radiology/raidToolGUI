@@ -33,6 +33,7 @@ Targets:
         ConnectCommand: 'net use X: \\myserver\myshare' # set to null to avoid automatic connect
         DisconnectCommand: 'net use X: /delete' # set to null to avoid disconnect
         SkipTemp: Yes # skip saving file to temp directory and save directly to target
+        Anonymize: Yes # save raw data in anonymized form (default: No)
     Removable1:
         Type: Drive
         DriveRegex: FS_Data.*

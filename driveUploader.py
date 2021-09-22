@@ -73,7 +73,7 @@ def translatePattern(pattern, dataStructure):
 
 class DriveUploader(AbstractUploader):
 
-    def __init__(self, drivePath = None, folderPath = None, connectCommand = None, disconnectCommand = None, driveRegex = None, filePattern = None, skipTemp = False):
+    def __init__(self, drivePath = None, folderPath = None, connectCommand = None, disconnectCommand = None, driveRegex = None, filePattern = None, skipTemp = False, anonymize = False):
         assert drivePath or driveRegex # there must either be a fixed path or a drive name
         self.drivePath = drivePath
         if folderPath is None:
@@ -85,6 +85,7 @@ class DriveUploader(AbstractUploader):
         self.driveRegex = driveRegex
         self.filePattern = filePattern
         self.skipTemp = skipTemp
+        self.anonymize = anonymize
 
     def skipTemp(self):
         return self.skipTemp

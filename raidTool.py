@@ -111,8 +111,13 @@ class RaidTool:
         self.tmpDir = TmpDir
         self.logDir = LogDir
 
-    def raidCommand(self, cmd):
-        c = f'RaidTool -a {self.ip} -p {self.port} -k ' + cmd
+    def raidCommand(self, cmd, anonymize = False):
+        c = f'RaidTool -a {self.ip} -p {self.port} '
+
+        if not anonymize:
+            c += '-k '
+
+        c += cmd
         print(c)
         return c
 
@@ -168,13 +173,13 @@ class RaidTool:
 
         return raidList
 
-    def retrieve(self, fileID, targetPathString = None) -> bool:
+    def retrieve(self, fileID, targetPathString = None, anonymize = False) -> bool:
         if targetPathString:
             targetPath = pathlib.Path(targetPathString)
         else:
             targetPath = pathlib.Path(self.getLocalFile(fileID))
 
-        cmd = self.raidCommand(f'-m {fileID} -o "{str(targetPath)}" -D -T {TRANSFER_COMMAND_TIMEOUT}')
+        cmd = self.raidCommand(f'-m {fileID} -o "{str(targetPath)}" -D -T {TRANSFER_COMMAND_TIMEOUT}', anonymize=anonymize)
         print(cmd)
         if MOCK:
             time.sleep(1)
